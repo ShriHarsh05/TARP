@@ -1,0 +1,11 @@
+State,City,Crime_Type,Incidents,Year,Latitude,Longitude
+Tamil Nadu,Chennai,Theft,1250,2021,13.0827,80.2707
+Tamil Nadu,Vellore,Robbery,340,2021,12.9165,79.1325
+Delhi,New Delhi,Assault,890,2021,28.6139,77.209
+Delhi,Delhi,Theft,1450,2021,28.7041,77.1025
+Maharashtra,Mumbai,Robbery,2100,2021,19.076,72.8777
+Maharashtra,Pune,Assault,780,2021,18.5204,73.8567
+Karnataka,Bangalore,Theft,1680,2021,12.9716,77.5946
+Karnataka,Mysore,Robbery,420,2021,12.2958,76.6394
+West Bengal,Kolkata,Assault,1340,2021,22.5726,88.3639
+West Bengal,Howrah,Theft,560,2021,22.5958,88.2636
