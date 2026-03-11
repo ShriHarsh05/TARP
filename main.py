@@ -10,7 +10,15 @@ CITY = "Vellore, Tamil Nadu, India"
 
 def main():
     print("--- Starting DT-GCN Pipeline ---")
+    
+    # Initialize DataManager
     dm = DataManager(TOMTOM_KEY)
+    
+    # Check for data updates
+    print("\nChecking data freshness...")
+    dm.check_for_updates()
+    
+    # Build graph with real-time traffic
     gb = GraphBuilder(CITY, dm)
     
     edge_index, edge_weight = gb.build_tensors()

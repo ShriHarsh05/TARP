@@ -60,11 +60,20 @@ TOMTOM_KEY = "your_api_key_here"
 
 ### Running the Project
 
+**Check for data updates:**
+```bash
+python update_data.py
+```
+This checks if your cached data is stale and provides update instructions.
+
 **Basic usage (generate risk scores):**
 ```bash
 python main.py
 ```
 Output: `DT_GCN_Vellore_Results.csv`
+- Automatically checks data freshness
+- Uses real-time traffic data (always latest)
+- Warns if cached crime data is outdated
 
 **With visualizations:**
 ```bash
@@ -154,6 +163,49 @@ Generates:
 - Top 10 high/low risk nodes
 - Statistics summary table
 - Geographic risk map
+
+## 🔄 Automatic Data Updates
+
+### Real-Time Data (Always Latest)
+The system **automatically fetches the latest traffic data** from TomTom API every time you run it. No manual updates needed for traffic information.
+
+### Crime Data (Semi-Automatic)
+
+**Automatic Freshness Checking:**
+The system tracks when data was last updated and warns you if it's stale:
+```bash
+python update_data.py  # Check all data sources
+```
+
+**Automatic Download (When Available):**
+If you have a data.gov.in API key, the system attempts automatic downloads:
+```python
+dm = DataManager(tomtom_key, data_gov_api_key='your_key')
+crime_data = dm.download_ncrb_crime_data()  # Auto-downloads if stale
+```
+
+**Manual Download (Fallback):**
+If automatic download fails, the system provides clear instructions:
+- Exact URLs to visit
+- File names to save
+- Where to place files
+
+### Data Freshness Tracking
+The system maintains metadata about your cached data:
+- **Location:** `cache/data_metadata.json`
+- **Tracks:** Last update date, data source, version
+- **Auto-checks:** Warns if data is >365 days old (crime) or >90 days old (sample)
+
+### Update Workflow
+```bash
+# 1. Check what needs updating
+python update_data.py
+
+# 2. Follow the instructions provided
+
+# 3. Run your analysis
+python main.py  # Automatically uses latest data
+```
 
 ## 📊 Data Sources
 
