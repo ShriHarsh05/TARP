@@ -6,7 +6,7 @@ import pandas as pd
 
 # Configuration
 TOMTOM_KEY = "lyMHmCEgz2W4OQwAC2Aw2W8PxXuSUsbR"
-CITY = "Vellore, Tamil Nadu, India"
+CITY = "Bengaluru, Karnataka, India"
 
 def main():
     print("--- Starting DT-GCN Pipeline ---")

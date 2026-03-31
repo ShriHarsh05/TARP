@@ -11,8 +11,8 @@ import pandas as pd
 
 # Configuration
 TOMTOM_KEY = "lyMHmCEgz2W4OQwAC2Aw2W8PxXuSUsbR"
-CITY = "Vellore, Tamil Nadu, India"
-STATE = "Tamil Nadu"
+CITY = "Bengaluru, Karnataka, India"
+STATE = "Karnataka"
 
 def main():
     print("=" * 70)
@@ -24,20 +24,27 @@ def main():
     
     # Load Indian crime data
     print("\n1. Loading Indian crime data...")
-    crime_data = dm.load_local_crime_data('cache/sample_indian_crime.csv')
+    crime_data = dm.load_local_crime_data('cache/bengaluru_crime_realistic.csv')
     
     if crime_data is not None:
-        # Filter for Tamil Nadu
+        # Filter for Karnataka/Bengaluru
         state_data = crime_data[crime_data['State'] == STATE]
         print(f"   ✓ Loaded {len(state_data)} crime records for {STATE}")
-        print(f"   Total incidents: {state_data['Incidents'].sum()}")
         
-        # Show Vellore specific data
-        vellore_data = state_data[state_data['City'] == 'Vellore']
-        if not vellore_data.empty:
-            print(f"\n   Vellore Crime Statistics:")
-            for _, row in vellore_data.iterrows():
-                print(f"   - {row['Crime_Type']}: {row['Incidents']} incidents")
+        # Show statistics by year
+        print(f"\n   Crime Statistics by Year:")
+        for year in sorted(state_data['Year'].unique()):
+            year_data = state_data[state_data['Year'] == year]
+            total = year_data['Incidents'].sum()
+            print(f"   - {year}: {total:,} incidents across {year_data['Police_Station'].nunique()} stations")
+        
+        # Show top crime types for latest year
+        latest_year = state_data['Year'].max()
+        latest_data = state_data[state_data['Year'] == latest_year]
+        print(f"\n   Top Crime Types ({latest_year}):")
+        top_crimes = latest_data.groupby('Crime_Type')['Incidents'].sum().sort_values(ascending=False).head(5)
+        for crime, count in top_crimes.items():
+            print(f"   - {crime}: {count:,} incidents")
     else:
         print("   ⚠ Using default configuration (no crime data)")
     

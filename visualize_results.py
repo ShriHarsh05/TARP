@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import osmnx as ox
+import os
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -17,9 +18,22 @@ sns.set_palette("husl")
 
 def load_results():
     """Load the risk assessment results"""
-    df = pd.read_csv('DT_GCN_Vellore_Results.csv')
-    print(f"Loaded {len(df)} nodes with risk scores")
-    return df
+    # Try Bengaluru results first, then fall back to Vellore
+    result_files = [
+        'DT_GCN_Bengaluru_Indian_Data_Results.csv',
+        'DT_GCN_Vellore_Results.csv',
+        'DT_GCN_Vellore_Indian_Data_Results.csv'
+    ]
+    
+    for filename in result_files:
+        if os.path.exists(filename):
+            df = pd.read_csv(filename)
+            city = filename.split('_')[2]
+            print(f"Loaded {len(df)} nodes with risk scores for {city}")
+            return df, city
+    
+    print("Error: No results file found!")
+    return None, None
 
 def create_risk_distribution_plot(df):
     """Create histogram of risk score distribution"""
@@ -135,7 +149,7 @@ def create_top_risk_nodes_plot(df):
     print("✓ Saved: top_risk_nodes.png")
     plt.close()
 
-def create_statistics_summary(df):
+def create_statistics_summary(df, city):
     """Create a summary statistics visualization"""
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.axis('off')
@@ -173,18 +187,24 @@ def create_statistics_summary(df):
             table[(i, 0)].set_facecolor('#ecf0f1')
             table[(i, 1)].set_facecolor('#ecf0f1')
     
-    plt.title('DT-GCN Risk Assessment - Summary Statistics\nVellore, Tamil Nadu, India',
+    plt.title(f'DT-GCN Risk Assessment - Summary Statistics\n{city}, India',
              fontsize=16, fontweight='bold', pad=20)
     
     plt.savefig('statistics_summary.png', dpi=300, bbox_inches='tight')
     print("✓ Saved: statistics_summary.png")
     plt.close()
 
-def create_map_visualization(df):
+def create_map_visualization(df, city):
     """Create a map visualization with risk scores"""
     try:
-        print("\nDownloading Vellore road network for map visualization...")
-        G = ox.graph_from_place("Vellore, Tamil Nadu, India", network_type='drive')
+        print(f"\nDownloading {city} road network for map visualization...")
+        city_map = {
+            'Bengaluru': 'Bengaluru, Karnataka, India',
+            'Vellore': 'Vellore, Tamil Nadu, India'
+        }
+        location = city_map.get(city, f'{city}, India')
+        
+        G = ox.graph_from_place(location, network_type='drive')
         
         # Create node colors based on risk scores
         node_colors = []
@@ -223,21 +243,21 @@ def create_map_visualization(df):
             Patch(facecolor='#95a5a6', label='No Data')
         ]
         ax.legend(handles=legend_elements, loc='upper right', fontsize=12)
-        ax.set_title('DT-GCN Risk Map - Vellore, Tamil Nadu\nDynamic Traffic-Weighted Risk Assessment',
+        ax.set_title(f'DT-GCN Risk Map - {city}\nDynamic Traffic-Weighted Risk Assessment',
                     fontsize=16, fontweight='bold', pad=20)
         
-        plt.savefig('risk_map_vellore.png', dpi=300, bbox_inches='tight')
-        print("✓ Saved: risk_map_vellore.png")
+        plt.savefig(f'risk_map_{city.lower()}.png', dpi=300, bbox_inches='tight')
+        print(f"✓ Saved: risk_map_{city.lower()}.png")
         plt.close()
         
     except Exception as e:
         print(f"⚠ Map visualization skipped: {e}")
         print("  (This requires internet connection and may take time)")
 
-def print_summary_report(df):
+def print_summary_report(df, city):
     """Print a text summary report"""
     print("\n" + "="*70)
-    print("DT-GCN RISK ASSESSMENT REPORT - VELLORE, TAMIL NADU")
+    print(f"DT-GCN RISK ASSESSMENT REPORT - {city.upper()}")
     print("="*70)
     
     print(f"\n📊 DATASET OVERVIEW")
@@ -279,22 +299,25 @@ def main():
     print("="*70)
     
     # Load data
-    df = load_results()
+    df, city = load_results()
+    if df is None:
+        print("Error: Could not load results file!")
+        return
     
     # Generate visualizations
     print("\nGenerating visualizations...")
     create_risk_distribution_plot(df)
     create_risk_categories_plot(df)
     create_top_risk_nodes_plot(df)
-    create_statistics_summary(df)
+    create_statistics_summary(df, city)
     
     # Print summary
-    print_summary_report(df)
+    print_summary_report(df, city)
     
     # Optional: Create map (can be slow)
     response = input("Generate geographic risk map? (This may take 1-2 minutes) [y/n]: ")
     if response.lower() == 'y':
-        create_map_visualization(df)
+        create_map_visualization(df, city)
     
     print("\n✓ All visualizations complete!")
     print("  Check the current directory for PNG files.")

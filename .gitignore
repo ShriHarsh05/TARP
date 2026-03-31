@@ -51,6 +51,7 @@ cache/*.json
 
 # Keep sample data
 !cache/sample_indian_crime.csv
+!cache/bengaluru_crime_realistic.csv
 
 # API Keys (if stored in files)
 config.py
